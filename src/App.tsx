@@ -1,19 +1,46 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChannelList } from './components/ChannelList'
 import { PlaylistInput } from './components/PlaylistInput'
 import { VideoPlayer } from './components/VideoPlayer'
+import { clearPlaylist, loadPlaylist, savePlaylist } from './storage'
 import type { Channel } from './types'
 import './App.css'
 
+const persisted = loadPlaylist()
+
 function App() {
-  const [channels, setChannels] = useState<Channel[]>([])
-  const [selected, setSelected] = useState<Channel | null>(null)
-  const [playlistName, setPlaylistName] = useState<string | null>(null)
+  const [channels, setChannels] = useState<Channel[]>(persisted?.channels ?? [])
+  const [selected, setSelected] = useState<Channel | null>(() => {
+    if (!persisted) return null
+    return (
+      persisted.channels.find((c) => c.id === persisted.selectedId) ??
+      persisted.channels[0] ??
+      null
+    )
+  })
+  const [playlistName, setPlaylistName] = useState<string | null>(
+    persisted?.playlistName ?? null
+  )
+
+  useEffect(() => {
+    savePlaylist({
+      channels,
+      playlistName,
+      selectedId: selected?.id ?? null,
+    })
+  }, [channels, playlistName, selected])
 
   const handleLoad = (loaded: Channel[], filename: string) => {
     setChannels(loaded)
     setPlaylistName(filename)
     setSelected(loaded[0] ?? null)
+  }
+
+  const handleReset = () => {
+    clearPlaylist()
+    setChannels([])
+    setPlaylistName(null)
+    setSelected(null)
   }
 
   return (
@@ -24,6 +51,14 @@ function App() {
           {playlistName && (
             <p className="app__subtitle">
               {playlistName} · {channels.length} channels
+              <button
+                type="button"
+                className="app__reset"
+                onClick={handleReset}
+                title="Remove the saved playlist"
+              >
+                Reset
+              </button>
             </p>
           )}
         </div>

@@ -28,6 +28,26 @@
   margin: 0.25rem 0 0;
   font-size: 0.875rem;
   color: #8b95a8;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app__reset {
+  border: 1px solid #2a3344;
+  border-radius: 6px;
+  padding: 0.2rem 0.6rem;
+  background: transparent;
+  color: #8b95a8;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.app__reset:hover {
+  background: #243044;
+  color: #e5484d;
+  border-color: #e5484d;
 }
 
 .app__main {
