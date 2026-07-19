@@ -31,9 +31,23 @@ function App() {
   }, [channels, playlistName, selected])
 
   const handleLoad = (loaded: Channel[], filename: string) => {
-    setChannels(loaded)
-    setPlaylistName(filename)
-    setSelected(loaded[0] ?? null)
+    setChannels((existing) => {
+      const seen = new Set(existing.map((c) => c.url))
+      const added: Channel[] = []
+      for (const c of loaded) {
+        if (seen.has(c.url)) continue
+        seen.add(c.url)
+        added.push(c)
+      }
+      const merged = [...existing, ...added]
+
+      setPlaylistName((prevName) =>
+        existing.length === 0 ? filename : prevName ?? filename
+      )
+      setSelected((prev) => prev ?? merged[0] ?? null)
+
+      return merged
+    })
   }
 
   const handleReset = () => {
